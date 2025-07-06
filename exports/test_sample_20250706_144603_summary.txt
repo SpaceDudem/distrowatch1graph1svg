@@ -1,0 +1,19 @@
+Distribution Summary Report
+==================================================
+
+Total Distributions: 3
+Active Distributions: 3
+Inactive Distributions: 0
+
+Top Base Distributions:
+------------------------------
+debian: 1
+Independent: 1
+ubuntu: 1
+
+Distributions by Decade:
+------------------------------
+1990s: 1
+2000s: 2
+
+Report generated: 2025-07-06 14:46:03

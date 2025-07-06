@@ -40,7 +40,7 @@ def fetch_details(arguments):
 
     # since this is subprocess space we want to reconstruct these based on
     # the passed primitives
-    distrobution = BeautifulSoup(distrobution)
+    distrobution = BeautifulSoup(distrobution, features="html.parser")
     session = Session()
 
     print("downloading and parsing %s" % distrobution.a.text)
@@ -48,7 +48,7 @@ def fetch_details(arguments):
     hname = distrobution.a.text
     aname = hname.split(' ')[0].lower() if aname == '' else aname
     link = "%s/%s" % (baseurl, aname)
-    distrosoup = BeautifulSoup(session.get(link).text)
+    distrosoup = BeautifulSoup(session.get(link).text, features="html.parser")
     structure = {
         strings.name: aname,
         "Human Name": hname,
@@ -93,37 +93,40 @@ def fetch_dist_list_from(baseurl, search_options):
 
     session = Session()
     website = session.get('%s/search.php?%s' % (baseurl, search_options)).text
-    searchSoup = BeautifulSoup(website)
+    searchSoup = BeautifulSoup(website, features="html.parser")
 
     def tagfilter(tag):
         return tag.name == "b" and match("[0-9]+\.", tag.text)
 
     # TODO Why are we creating THIS as a json string here.
     # Why not jsut return a python array
-    result = "["
+    result_items = []
+
     # some missing root elements
     godfathers = [
         ["android", "2008-10-23"]
     ]
     for godfather in godfathers:
-        result += jsondumps({
+        result_items.append(jsondumps({
             strings.name: godfather[0],
             strings.based: strings.independend,
             strings.dates: [godfather[1]],
             strings.status: strings.active,
             strings.image: ""
-        }) + ","
+        }))
 
     from multiprocessing import Pool
     pool = Pool(8)  # sub interpreters to use
     foundDistributions = searchSoup.find_all(tagfilter)
-    result += ",".join(pool.map(
-        fetch_details,
-        zip([baseurl
-             for x
-             in foundDistributions],
-            [str(x)
-             for x
-             in foundDistributions])
-    ))
-    return result + "]"
+    if foundDistributions:
+        result_items.extend(pool.map(
+            fetch_details,
+            zip([baseurl
+                 for x
+                 in foundDistributions],
+                [str(x)
+                 for x
+                 in foundDistributions])
+        ))
+
+    return "[" + ",".join(result_items) + "]"

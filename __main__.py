@@ -23,6 +23,8 @@ completed they'll be cached in out, delete that file to re-download
 from fetchdists import fetch_dist_list_from
 from graph import to_graph
 from svg import toCSV
+from offline_exporter import export_distros_offline
+from archive_combiner import combine_archive_with_scraped
 from subprocess import call
 
 import os
@@ -57,6 +59,24 @@ def main():
                 specify it at the form and copy the resulting GET request in
                 this argument"""
     )
+    parser.add_argument(
+        '--exportOffline',
+        action='store_true',
+        help="""Export scraped distribution data in multiple formats for offline use
+                (JSON, CSV, TXT, Summary, Family Tree)"""
+    )
+    parser.add_argument(
+        '--exportOnly',
+        action='store_true',
+        help="""Only export offline data, skip SVG generation
+                (useful for data analysis without creating graphs)"""
+    )
+    parser.add_argument(
+        '--combineArchive',
+        action='store_true',
+        help="""Combine scraped data with GLDT archive data for more complete dataset
+                (includes historical distributions, colors, precise dates)"""
+    )
 
     args = parser.parse_args()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -78,6 +98,46 @@ def main():
         with open(fetched_dists_file, "w") as cached:
             print("wrote cache file %s/%s" % (outputdir, fetched_dists_file))
             cached.write(son)
+
+    # Combine with archive data if requested
+    if args.combineArchive:
+        print("🔄 Combining with GLDT archive data...")
+        try:
+            original_count = len(json.loads(son))
+            # Pass correct path to gldt.csv (go up one directory from 'out')
+            gldt_path = "../gldt.csv"
+            son = combine_archive_with_scraped(son, gldt_path)
+            combined_count = len(json.loads(son))
+            print(f"✅ Archive combination completed!")
+            print(f"   Original: {original_count} distributions")
+            print(f"   Combined: {combined_count} distributions")
+            print(f"   Added: {combined_count - original_count} from archive")
+
+            # Save combined data to cache
+            combined_file = "dists_combined.json"
+            with open(combined_file, "w") as cached:
+                print("wrote combined cache file %s/%s" % (outputdir, combined_file))
+                cached.write(son)
+        except Exception as e:
+            print(f"❌ Archive combination failed: {e}")
+            print("Continuing with scraped data only...")
+
+    # Export offline data if requested
+    if args.exportOffline or args.exportOnly:
+        print("Exporting offline data...")
+        try:
+            export_results = export_distros_offline(son, "distrowatch_data")
+            print("✅ Offline export completed successfully!")
+            print("Export files created:")
+            for format_type, filepath in export_results.items():
+                print(f"  {format_type}: {filepath}")
+        except Exception as e:
+            print(f"❌ Offline export failed: {e}")
+
+    # Skip SVG generation if exportOnly is specified
+    if args.exportOnly:
+        print("Skipping SVG generation (--exportOnly specified)")
+        return
 
     son = to_graph(son)
 

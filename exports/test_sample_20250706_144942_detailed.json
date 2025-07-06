@@ -1,0 +1,35 @@
+[
+  {
+    "Name": "ubuntu",
+    "Human Name": "Ubuntu",
+    "Based on": "debian",
+    "Status": "Active",
+    "Dates": [
+      "2004-10-20"
+    ],
+    "Link": "https://ubuntu.com",
+    "Image": "ubuntu.png"
+  },
+  {
+    "Name": "debian",
+    "Human Name": "Debian",
+    "Based on": "independent",
+    "Status": "Active",
+    "Dates": [
+      "1993-09-15"
+    ],
+    "Link": "https://debian.org",
+    "Image": "debian.png"
+  },
+  {
+    "Name": "mint",
+    "Human Name": "Linux Mint",
+    "Based on": "ubuntu",
+    "Status": "Active",
+    "Dates": [
+      "2006-08-27"
+    ],
+    "Link": "https://linuxmint.com",
+    "Image": "mint.png"
+  }
+]

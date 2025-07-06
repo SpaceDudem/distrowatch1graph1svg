@@ -1,0 +1,24 @@
+Linux Distribution List
+==================================================
+
+• Ubuntu
+  Name: ubuntu
+  Status: Active
+  Based on: debian
+  First release: 2004-10-20
+  Link: https://ubuntu.com
+
+• Debian
+  Name: debian
+  Status: Active
+  Based on: independent
+  First release: 1993-09-15
+  Link: https://debian.org
+
+• Linux Mint
+  Name: mint
+  Status: Active
+  Based on: ubuntu
+  First release: 2006-08-27
+  Link: https://linuxmint.com
+
